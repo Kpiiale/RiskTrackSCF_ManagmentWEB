@@ -1,0 +1,39 @@
+﻿@using RiskTrackSCF_ManagmentWEB.Services 
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject HttpClient Http
+@using RiskTrackSCF_ManagmentWEB.Models
+@inject ILocalStorageService localStorage
+
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <InputText @bind-Value="loginModel.Email" placeholder="Email" class="form-control" />
+    <InputText @bind-Value="loginModel.Password" placeholder="Contraseña" type="password" class="form-control" />
+    <button class="btn btn-primary">Iniciar sesión</button>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <p class="text-danger">@error</p>
+    }
+</EditForm>
+
+
+@code {
+    private LoginRequest loginModel = new();
+    private string error = "";
+
+    private async Task HandleLogin()
+    {
+        var user = await AuthService.LoginAsync(loginModel); 
+        if (user == null || user.Role != "A")
+        {
+            error = "Acceso permitido solo para usuarios con rol A.";
+            return;
+        }
+
+        await localStorage.SetItemAsync("authUser", user);
+        Navigation.NavigateTo("/dashboard");
+    }
+
+
+}
