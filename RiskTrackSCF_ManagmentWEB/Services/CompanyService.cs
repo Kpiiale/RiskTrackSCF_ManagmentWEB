@@ -20,9 +20,9 @@ namespace RiskTrackSCF_ManagmentWEB.Services
             return await _http.GetFromJsonAsync<Company>($"api/Companies/{id}");
         }
 
-        public async Task<bool> CreateCompanyAsync(Company company)
+        public async Task<bool> CreateCompanyAsync(CreateCompanyRequest request)
         {
-            var response = await _http.PostAsJsonAsync("api/Companies", company);
+            var response = await _http.PostAsJsonAsync("api/Companies", request);
             return response.IsSuccessStatusCode;
         }
 

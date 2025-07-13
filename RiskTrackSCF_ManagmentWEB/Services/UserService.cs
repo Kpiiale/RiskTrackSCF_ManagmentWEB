@@ -21,9 +21,9 @@ namespace RiskTrackSCF_ManagmentWEB.Services
             return await _http.GetFromJsonAsync<User>($"api/Users/{id}");
         }
 
-        public async Task<bool> CreateUserAsync(User CreateUserRequest)
+        public async Task<bool> CreateUserAsync(CreateUserRequest request)
         {
-            var response = await _http.PostAsJsonAsync("api/Users", CreateUserRequest);
+            var response = await _http.PostAsJsonAsync("api/Users", request);
             return response.IsSuccessStatusCode;
         }
 
