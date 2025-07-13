@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace RiskTrackSCF_ManagmentWEB.Models
 {
-    public class UserLoginDTO
+    public class LoginRequest
     {
         [Required(ErrorMessage = "El campo Email es obligatorio.")]
         [JsonPropertyName("Email")]
