@@ -23,6 +23,15 @@ namespace RiskTrackSCF_ManagmentWEB.Services
 
         public async Task<bool> CreateUserAsync(CreateUserRequest request)
         {
+            var existingUsers = await GetUsersAsync();
+            bool existingEmail = existingUsers?.Any(u =>
+                u.Email.Equals(request.Email, StringComparison.OrdinalIgnoreCase)) ?? false;
+
+            if (existingEmail)
+            {
+                Console.WriteLine("No se puede crear el usuario: correo ya está en uso.");
+                return false;
+            }
             var response = await _http.PostAsJsonAsync("api/Users", request);
             return response.IsSuccessStatusCode;
         }

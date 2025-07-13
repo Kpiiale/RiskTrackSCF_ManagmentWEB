@@ -18,6 +18,10 @@
     <EditForm Model="newUser" OnValidSubmit="CreateUser">
         <DataAnnotationsValidator />
         <ValidationSummary />
+        @if (!string.IsNullOrEmpty(creationError))
+        {
+            <div class="alert alert-danger">@creationError</div>
+        }
 
         <div style="max-height: 300px; overflow-y: auto;">
             <div class="mb-2">
@@ -30,6 +34,7 @@
                     }
                 </InputSelect>
                 <ValidationMessage For="@(() => newUser.CompanyId)" />
+
             </div>
 
             <div class="mb-2">
@@ -92,6 +97,7 @@ else
 }
 
 @code {
+    private string? creationError;
     private List<User>? users;
     private List<Company>? companies;
     private CreateUserRequest newUser = new();
@@ -116,11 +122,18 @@ else
 
     private async Task CreateUser()
     {
+        creationError = null;
+
         var success = await UserService.CreateUserAsync(newUser);
+
         if (success)
         {
             await LoadUsers();
             showCreateForm = false;
+        }
+        else
+        {
+            creationError = "Ya existe un usuario con ese correo.";
         }
     }
 
