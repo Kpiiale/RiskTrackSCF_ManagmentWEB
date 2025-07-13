@@ -1,10 +1,24 @@
+using Blazored.LocalStorage;
 using RiskTrackSCF_ManagmentWEB.Components;
+using RiskTrackSCF_ManagmentWEB.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddBlazoredLocalStorage();
+
+
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("https://localhost:7019/") 
+});
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CompanyService>();
+builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 

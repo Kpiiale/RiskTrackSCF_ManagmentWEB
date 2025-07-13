@@ -1,0 +1,153 @@
+﻿@page "/users"
+@using RiskTrackSCF_ManagmentWEB.Services
+@inject UserService UserService
+@inject CompanyService CompanyService
+@using RiskTrackSCF_ManagmentWEB.Models
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+
+<h3>Gestión de Usuarios (Administradores)</h3>
+<button class="btn btn-secondary" @onclick="GoToDashboard">← Volver al Dashboard</button>
+<button class="btn btn-success mb-3" @onclick="ToggleCreateForm">
+    @(showCreateForm ? "Cancelar" : "Crear Usuario")
+</button>
+
+@if (showCreateForm)
+{
+    <EditForm Model="newUser" OnValidSubmit="CreateUser">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div style="max-height: 300px; overflow-y: auto;">
+            <div class="mb-2">
+                <label>Compañía:</label>
+                <InputSelect class="form-control" @bind-Value="newUser.CompanyId">
+                    <option value="">Seleccione una compañía</option>
+                    @foreach (var company in companies)
+                    {
+                        <option value="@company.CompanyId">@company.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newUser.CompanyId)" />
+            </div>
+
+            <div class="mb-2">
+                <label>Usuario:</label>
+                <InputText class="form-control" @bind-Value="newUser.Username" />
+                <ValidationMessage For="@(() => newUser.Username)" />
+            </div>
+
+            <div class="mb-2">
+                <label>Email:</label>
+                <InputText class="form-control" @bind-Value="newUser.Email" />
+                <ValidationMessage For="@(() => newUser.Email)" />
+            </div>
+
+            <div class="mb-2">
+                <label>Contraseña:</label>
+                <InputText class="form-control" type="password" @bind-Value="newUser.Password" />
+                <ValidationMessage For="@(() => newUser.Password)" />
+            </div>
+
+            <button class="btn btn-primary" type="submit">Guardar</button>
+        </div>
+    </EditForm>
+}
+
+@if (users == null)
+{
+    <p>Cargando usuarios...</p>
+}
+else
+{
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Compañía</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.UserId</td>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>@user.Role</td>
+                    <td>@companies?.FirstOrDefault(c => c.CompanyId == user.CompanyId)?.Name</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-2" @onclick="() => EditUser(user)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<User>? users;
+    private List<Company>? companies;
+    private CreateUserRequest newUser = new();
+    private bool showCreateForm = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        companies = await CompanyService.GetCompaniesAsync();
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await UserService.GetUsersAsync();
+    }
+
+    private void ToggleCreateForm()
+    {
+        showCreateForm = !showCreateForm;
+        newUser = new CreateUserRequest();
+    }
+
+    private async Task CreateUser()
+    {
+        var success = await UserService.CreateUserAsync(newUser);
+        if (success)
+        {
+            await LoadUsers();
+            showCreateForm = false;
+        }
+    }
+
+    private void EditUser(User user)
+    {
+        showCreateForm = true;
+        newUser = new CreateUserRequest
+        {
+            Username = user.Username,
+            Email = user.Email,
+            Password = user.Password,
+            Role = "A",
+            CompanyId = user.CompanyId
+        };
+    }
+
+    private async Task DeleteUser(int id)
+    {
+        var success = await UserService.DeleteUserAsync(id);
+        if (success)
+        {
+            await LoadUsers();
+        }
+    }
+    private void GoToDashboard()
+    {
+        Navigation.NavigateTo("/dashboard");
+    }
+}
+

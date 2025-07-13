@@ -1,0 +1,54 @@
+﻿@page "/dashboard"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject HttpClient Http
+@using RiskTrackSCF_ManagmentWEB.Services
+@using RiskTrackSCF_ManagmentWEB.Models
+@inject ProtectedSessionStorage sessionStorage
+@inject NavigationManager Navigation 
+@rendermode InteractiveServer
+
+<div class="admin-wrapper">
+    <div class="admin-card">
+        <h1 class="hero-title">Bienvenido, Administrador</h1>
+        <p class="hero-subtitle">Tienes acceso completo al sistema. Desde aquí puedes gestionar usuarios y compañías.</p>
+
+        <div class="button-group">
+            <button class="cta-button green-button" @onclick="ShowUsers">Ver Usuarios</button>
+            <button class="cta-button green-button" @onclick="ShowCompanies">Ver Compañías</button>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private bool initialized = false;
+    private User? authUser;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await sessionStorage.GetAsync<User>("authUser");
+            authUser = result.Success ? result.Value : null;
+
+            if (authUser?.Role != "S")
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            initialized = true;
+            StateHasChanged();
+        }
+    }
+    private void ShowUsers()
+    {
+        Navigation.NavigateTo("/users");
+    }
+
+    private void ShowCompanies()
+    {
+        Navigation.NavigateTo("/companies");
+    }
+}
+

@@ -1,0 +1,160 @@
+﻿@page "/companies"
+@using RiskTrackSCF_ManagmentWEB.Services
+@inject UserService UserService
+@inject CompanyService CompanyService
+@using RiskTrackSCF_ManagmentWEB.Models
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Gestión de Compañías</h3>
+
+<div class="mb-3">
+    <button class="btn btn-secondary" @onclick="GoToDashboard">← Volver al Dashboard</button>
+    <button class="btn btn-success ms-2" @onclick="ToggleCreateForm">
+        @(showCreateForm ? "Cancelar" : "Crear Compañía")
+    </button>
+</div>
+
+@if (showCreateForm)
+{
+    <EditForm Model="newCompany" OnValidSubmit="CreateCompany">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div style="max-height: 300px; overflow-y: auto;" class="p-3 bg-light rounded shadow-sm mb-4">
+            <div class="mb-2">
+                <label>Nombre:</label>
+                <InputText class="form-control" @bind-Value="newCompany.Name" />
+                <ValidationMessage For="@(() => newCompany.Name)" />
+            </div>
+
+            <div class="mb-2">
+                <label>RUC:</label>
+                <InputText class="form-control" @bind-Value="newCompany.RUC" />
+                <ValidationMessage For="@(() => newCompany.RUC)" />
+            </div>
+
+            <div class="mb-2">
+                <label>Sector:</label>
+                <InputText class="form-control" @bind-Value="newCompany.Sector" />
+                <ValidationMessage For="@(() => newCompany.Sector)" />
+            </div>
+
+            <button class="btn btn-primary mt-2" type="submit">Guardar</button>
+        </div>
+    </EditForm>
+}
+
+@if (companies == null)
+{
+    <p>Cargando compañías...</p>
+}
+else
+{
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>RUC</th>
+                <th>Sector</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var company in companies)
+            {
+                <tr>
+                    <td>@company.CompanyId</td>
+                    <td>@company.Name</td>
+                    <td>@company.Ruc</td>
+                    <td>@company.Sector</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-2" @onclick="() => EditCompany(company)">Editar</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteCompany(company.CompanyId)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Company>? companies;
+    private CreateCompanyRequest newCompany = new();
+    private bool showCreateForm = false;
+    private int? editingCompanyId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCompanies();
+    }
+
+    private async Task LoadCompanies()
+    {
+        companies = await CompanyService.GetCompaniesAsync();
+    }
+
+    private void ToggleCreateForm()
+    {
+        showCreateForm = !showCreateForm;
+        newCompany = new CreateCompanyRequest();
+        editingCompanyId = null;
+    }
+
+    private async Task CreateCompany()
+    {
+        bool success;
+
+        if (editingCompanyId.HasValue)
+        {
+            var updated = new Company
+            {
+                CompanyId = editingCompanyId.Value,
+                Name = newCompany.Name ?? "",
+                Ruc = newCompany.RUC ?? "",
+                Sector = newCompany.Sector ?? ""
+            };
+
+            success = await CompanyService.UpdateCompanyAsync(updated.CompanyId, updated);
+        }
+        else
+        {
+            success = await CompanyService.CreateCompanyAsync(newCompany);
+        }
+
+        if (success)
+        {
+            await LoadCompanies();
+            showCreateForm = false;
+            editingCompanyId = null;
+        }
+    }
+
+    private void EditCompany(Company company)
+    {
+        showCreateForm = true;
+        newCompany = new CreateCompanyRequest
+        {
+            Name = company.Name,
+            RUC = company.Ruc,
+            Sector = company.Sector
+        };
+        editingCompanyId = company.CompanyId;
+    }
+
+    private async Task DeleteCompany(int id)
+    {
+        var success = await CompanyService.DeleteCompanyAsync(id);
+        if (success)
+        {
+            await LoadCompanies();
+        }
+    }
+
+    private void GoToDashboard()
+    {
+        Navigation.NavigateTo("/dashboard");
+    }
+}
+
+

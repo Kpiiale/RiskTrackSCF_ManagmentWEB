@@ -1,22 +1,26 @@
-﻿@using RiskTrackSCF_ManagmentWEB.Services 
-@inject AuthService AuthService
-@inject NavigationManager Navigation
+﻿@page "/login"
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject HttpClient Http
+@using RiskTrackSCF_ManagmentWEB.Services 
 @using RiskTrackSCF_ManagmentWEB.Models
-@inject ILocalStorageService localStorage
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@inject ProtectedSessionStorage sessionStorage
+@rendermode InteractiveServer
 
 <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
     <InputText @bind-Value="loginModel.Email" placeholder="Email" class="form-control" />
     <InputText @bind-Value="loginModel.Password" placeholder="Contraseña" type="password" class="form-control" />
-    <button class="btn btn-primary">Iniciar sesión</button>
+    <button class="btn btn-primary">Ingresar</button>
 
     @if (!string.IsNullOrEmpty(error))
     {
-        <p class="text-danger">@error</p>
+        <div class="alert alert-danger mt-3">@error</div>
     }
 </EditForm>
-
 
 @code {
     private LoginRequest loginModel = new();
@@ -24,16 +28,22 @@
 
     private async Task HandleLogin()
     {
-        var user = await AuthService.LoginAsync(loginModel); 
-        if (user == null || user.Role != "A")
+        var result = await AuthService.LoginAsync(loginModel);
+
+        if (result == null)
         {
-            error = "Acceso permitido solo para usuarios con rol A.";
+            error = "Credenciales incorrectas.";
             return;
         }
 
-        await localStorage.SetItemAsync("authUser", user);
+        if (result.Role != "S")
+        {
+            error = "Acceso denegado: solo usuarios SuperAdmin pueden ingresar.";
+            return;
+        }
+
+        await sessionStorage.SetAsync("authUser", result);
         Navigation.NavigateTo("/dashboard");
     }
-
-
 }
+
