@@ -10,11 +10,22 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddBlazoredLocalStorage();
 
+var handler = new HttpClientHandler();
 
-builder.Services.AddScoped(sp => new HttpClient
+if (builder.Environment.IsDevelopment())
 {
-    BaseAddress = new Uri("https://localhost:8443/riskTrackerUCreations/") 
+    handler.ServerCertificateCustomValidationCallback =
+        (httpRequestMessage, cert, cetChain, policyErrors) =>
+        {
+            return true;
+        };
+}
+
+builder.Services.AddScoped(sp => new HttpClient(handler, disposeHandler: false)
+{
+    BaseAddress = new Uri("https://localhost:8443/riskTrackerUCreations/")
 });
+
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CompanyService>();
