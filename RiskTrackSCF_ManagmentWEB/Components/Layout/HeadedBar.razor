@@ -1,0 +1,50 @@
+﻿@inherits LayoutComponentBase
+
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container-fluid">
+        <!-- Título -->
+        <a class="navbar-brand text-warning" href="/">RiskTrack Manager</a>
+
+        <!-- Botón hamburguesa -->
+        <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02"
+                aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Contenido colapsable -->
+        <div class="navbar-collapse collapse" id="navbarColor02">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                        Home
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/features">Features</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/pricing">Pricing</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/about">About</NavLink>
+                </li>
+
+                
+            </ul>
+
+           
+        </div>
+    </div>
+</nav>
+
+<!-- Contenido principal -->
+<div class="container mt-4">
+    @Body
+</div>
+
+<!-- Error UI -->
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
