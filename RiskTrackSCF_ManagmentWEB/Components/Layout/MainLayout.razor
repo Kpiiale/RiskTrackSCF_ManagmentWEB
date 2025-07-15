@@ -1,19 +1,39 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using RiskTrackSCF_ManagmentWEB.Models
+@inject NavigationManager Navigation
+@inject ProtectedSessionStorage sessionStorage
+@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<!-- Navbar superior -->
+<nav class="navbar navbar-expand-lg bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Risk Track Admin Manager</a>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                @if (isLoggedIn)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" @onclick="Logout">Cerrar sesión</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/login">Login</NavLink>
+                    </li>
+                }
+            </ul>
         </div>
+    </div>
+</nav>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+<div class="container mt-4">
+    @Body
 </div>
 
 <div id="blazor-error-ui">
@@ -21,3 +41,28 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+@code {
+    private bool isLoggedIn;
+    private bool hasLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !hasLoaded)
+        {
+            var result = await sessionStorage.GetAsync<User>("authUser");
+            isLoggedIn = result.Success && result.Value is not null;
+            hasLoaded = true;
+            StateHasChanged(); 
+        }
+    }
+
+    private async Task Logout()
+    {
+        await sessionStorage.DeleteAsync("authUser");
+        isLoggedIn = false;
+        Navigation.NavigateTo("/");
+    }
+}
+
+
+

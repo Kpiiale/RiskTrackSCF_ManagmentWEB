@@ -7,17 +7,40 @@
 @inject NavigationManager Navigation 
 @rendermode InteractiveServer
 
-<div class="admin-wrapper">
-    <div class="admin-card">
-        <h1 class="hero-title">Bienvenido, Administrador</h1>
-        <p class="hero-subtitle">Tienes acceso completo al sistema. Desde aquí puedes gestionar usuarios y compañías.</p>
+<div class="container mt-5">
+    <!-- Bienvenida -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 text-primary fw-bold">Bienvenido al Panel Administrativo</h1>
+        <p class="lead text-muted">Aquí puedes crear y administrar compañías y usuarios para la app principal.</p>
+    </div>
 
-        <div class="button-group">
-            <button class="cta-button green-button" @onclick="ShowUsers">Ver Usuarios</button>
-            <button class="cta-button green-button" @onclick="ShowCompanies">Ver Compañías</button>
+    <!-- Acciones principales -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Usuarios</h5>
+                    <p class="card-text">Administra cuentas y permisos de acceso.</p>
+                    <a href="/users" class="btn btn-outline-success">Gestionar Usuarios</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <h5 class="card-title">🏢 Compañías</h5>
+                    <p class="card-text">Registra y organiza las compañías vinculadas.</p>
+                    <a href="/companies" class="btn btn-outline-info">Gestionar Compañías</a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <div class="text-center text-muted mt-5">
+        <em>"Simplificando la gestión de usuarios y empresas desde un solo lugar."</em>
+    </div>
 </div>
+
 
 
 @code {
