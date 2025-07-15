@@ -13,7 +13,7 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7019/") 
+    BaseAddress = new Uri("http://localhost:8000/riskTrackerUCreations/") 
 });
 
 builder.Services.AddScoped<UserService>();
